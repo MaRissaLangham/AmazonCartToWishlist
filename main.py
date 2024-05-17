@@ -1,3 +1,8 @@
+"""Marissa Langham 05.16.2024
+Amazon "Save for Later" items"""
+
+
+
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -19,7 +24,7 @@ driver = webdriver.Chrome(options=options)
 AMAZON_EMAIL = 'your-email@example.com'
 AMAZON_PASSWORD = 'your-password'
 
-def amazon_login(email, password):
+def amazonLogin(email, password):
     driver.get('https://www.amazon.com')
     wait = WebDriverWait(driver, 20)  # Increase the wait time to 20 seconds
     try:
@@ -40,7 +45,7 @@ def amazon_login(email, password):
         driver.save_screenshot('debug_screenshot.png')  # Save a screenshot for debugging
         raise
 
-def move_save_for_later_to_wishlist():
+def moveToWishlist():
     driver.get('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart')
     time.sleep(5)  # Wait for page to load
 
@@ -57,7 +62,7 @@ def move_save_for_later_to_wishlist():
             print("Clicked 'Add to list' button.")
             time.sleep(1)
             # Use class name to find the "Default List" option
-            default_wishlist_option = WebDriverWait(driver, 10).until(
+            default_wishlist_option = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, "a-size-small.cldd-list-name.a-nowrap"))
             )
             default_wishlist_option.click()
@@ -67,7 +72,7 @@ def move_save_for_later_to_wishlist():
             print(f"Failed to move item: {e}")
             driver.save_screenshot('debug_screenshot.png')  # Save a screenshot for debugging
 
-def verify_and_delete_save_for_later_items():
+def verifyAndDelete():
     driver.get('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart')
     time.sleep(5)  # Wait for page to load
 
@@ -76,20 +81,20 @@ def verify_and_delete_save_for_later_items():
         print("All 'Save For Later' items have been moved to the wishlist.")
         # All items are moved, proceed to delete all
         while save_for_later_items:
-            delete_buttons = driver.find_elements(By.CSS_SELECTOR, '.sc-list-save-later .sc-action-delete input')
+            delete_buttons = driver.find_elements(By.XPATH, ".//input[@value='Delete']")
             for delete_button in delete_buttons:
                 delete_button.click()
                 time.sleep(2)  # Wait for the action to complete
-            save_for_later_items = driver.find_elements(By.CSS_SELECTOR, '.sc-list-save-later .sc-list-item')
+            save_for_later_items = driver.find_elements(By.CSS_SELECTOR, '.sc-list-item')
     else:
         print("Some 'Save For Later' items could not be moved.")
         driver.save_screenshot('debug_screenshot.png')  # Save a screenshot for debugging
 
 if __name__ == "__main__":
     try:
-        amazon_login(AMAZON_EMAIL, AMAZON_PASSWORD)
-        move_save_for_later_to_wishlist()
-        verify_and_delete_save_for_later_items()
+        amazonLogin(AMAZON_EMAIL, AMAZON_PASSWORD)
+        moveToWishlist()
+        verifyAndDelete()
     finally:
         driver.quit()
 
